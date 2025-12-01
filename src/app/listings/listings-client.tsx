@@ -14,6 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { formatUsdAmount } from '@/lib/crypto';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { SlidersHorizontal } from 'lucide-react';
 
 type ListingsClientProps = {
   initialProperties: (Property & { images: any[] })[];
@@ -23,6 +25,81 @@ type SortKey = 'price-asc' | 'price-desc' | 'date-desc' | 'size-desc';
 
 const propertyTypes = ['Apartment', 'Penthouse', 'Studio'];
 const bedroomOptions = ['1', '2', '3', '4+'];
+
+function Filters({
+  searchTerm,
+  setSearchTerm,
+  priceRange,
+  setPriceRange,
+  selectedType,
+  setSelectedType,
+  selectedBedrooms,
+  setSelectedBedrooms,
+  resetFilters,
+}: {
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  priceRange: number[];
+  setPriceRange: (range: number[]) => void;
+  selectedType: string;
+  setSelectedType: (type: string) => void;
+  selectedBedrooms: string;
+  setSelectedBedrooms: (bedrooms: string) => void;
+  resetFilters: () => void;
+}) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <label htmlFor="search" className="text-sm font-medium">Search Location or Title</label>
+        <Input
+          id="search"
+          placeholder="e.g. Miami or Penthouse"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium">Price Range</label>
+        <p className="text-sm text-muted-foreground mb-2">
+          {formatUsdAmount(priceRange[0])} - {formatUsdAmount(priceRange[1])}
+        </p>
+        <Slider
+          min={0}
+          max={5000000}
+          step={100000}
+          value={priceRange}
+          onValueChange={(value) => setPriceRange(value)}
+        />
+      </div>
+
+      <div>
+        <label htmlFor="property-type" className="text-sm font-medium">Property Type</label>
+        <Select value={selectedType} onValueChange={setSelectedType}>
+          <SelectTrigger id="property-type"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Types</SelectItem>
+            {propertyTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <label htmlFor="bedrooms" className="text-sm font-medium">Bedrooms</label>
+        <Select value={selectedBedrooms} onValueChange={setSelectedBedrooms}>
+          <SelectTrigger id="bedrooms"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Any</SelectItem>
+            {bedroomOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}{opt.includes('+') ? '' : ' Beds'}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <Button onClick={resetFilters} variant="outline" className="w-full">Reset Filters</Button>
+    </div>
+  );
+}
+
 
 export default function ListingsClient({ initialProperties }: ListingsClientProps) {
   const [searchTerm, setSearchTerm] = useState('');
@@ -66,70 +143,43 @@ export default function ListingsClient({ initialProperties }: ListingsClientProp
     setSortKey('date-desc');
   };
 
+  const filterProps = {
+    searchTerm, setSearchTerm, priceRange, setPriceRange, selectedType, setSelectedType, selectedBedrooms, setSelectedBedrooms, resetFilters
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-      {/* Filters Sidebar */}
-      <aside className="lg:col-span-1 bg-card p-6 rounded-lg self-start sticky top-24">
+      {/* Filters Sidebar - Desktop */}
+      <aside className="hidden lg:block lg:col-span-1 bg-card p-6 rounded-lg self-start sticky top-24">
         <h2 className="text-2xl font-semibold mb-6">Filters</h2>
-        <div className="space-y-6">
-          <div>
-            <label htmlFor="search" className="text-sm font-medium">Search Location or Title</label>
-            <Input 
-                id="search" 
-                placeholder="e.g. Miami or Penthouse"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          
-          <div>
-            <label className="text-sm font-medium">Price Range</label>
-            <p className="text-sm text-muted-foreground mb-2">
-                {formatUsdAmount(priceRange[0])} - {formatUsdAmount(priceRange[1])}
-            </p>
-            <Slider
-              min={0}
-              max={5000000}
-              step={100000}
-              value={priceRange}
-              onValueChange={(value) => setPriceRange(value)}
-            />
-          </div>
-
-          <div>
-            <label htmlFor="property-type" className="text-sm font-medium">Property Type</label>
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger id="property-type"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Types</SelectItem>
-                {propertyTypes.map(type => <SelectItem key={type} value={type}>{type}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label htmlFor="bedrooms" className="text-sm font-medium">Bedrooms</label>
-            <Select value={selectedBedrooms} onValueChange={setSelectedBedrooms}>
-              <SelectTrigger id="bedrooms"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Any</SelectItem>
-                {bedroomOptions.map(opt => <SelectItem key={opt} value={opt}>{opt}{opt.includes('+') ? '' : ' Beds'}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <Button onClick={resetFilters} variant="outline" className="w-full">Reset Filters</Button>
-        </div>
+        <Filters {...filterProps} />
       </aside>
 
       {/* Listings */}
       <main className="lg:col-span-3">
         <div className="flex justify-between items-center mb-6">
-          <p className="text-muted-foreground">{filteredAndSortedProperties.length} results found</p>
+            <div className="flex items-center gap-4">
+                <p className="text-muted-foreground">{filteredAndSortedProperties.length} results found</p>
+                {/* Mobile Filter Trigger */}
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="outline" className="lg:hidden">
+                            <SlidersHorizontal className="mr-2 h-4 w-4" />
+                            Filters
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left">
+                        <div className="p-6">
+                            <h2 className="text-2xl font-semibold mb-6">Filters</h2>
+                            <Filters {...filterProps} />
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
           <div className="flex items-center gap-2">
-            <label htmlFor="sort" className="text-sm font-medium">Sort by</label>
+            <label htmlFor="sort" className="text-sm font-medium hidden sm:block">Sort by</label>
             <Select value={sortKey} onValueChange={(value) => setSortKey(value as SortKey)}>
-              <SelectTrigger id="sort" className="w-[180px]"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="sort" className="w-auto sm:w-[180px]"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="date-desc">Newest</SelectItem>
                 <SelectItem value="price-desc">Price: High to Low</SelectItem>

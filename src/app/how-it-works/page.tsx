@@ -39,24 +39,28 @@ export default function HowItWorksPage() {
                 </p>
             </div>
             <div className="max-w-4xl mx-auto">
-                <div className="relative">
-                    {/* Dashed line connector */}
-                    <div className="absolute left-1/2 -translate-x-1/2 top-10 bottom-10 w-0.5 bg-border border-l-2 border-dashed" aria-hidden="true"></div>
+                <div className="relative md:p-10">
+                    {/* Dashed line connector for desktop */}
+                    <div className="absolute left-1/2 -translate-x-1/2 top-10 bottom-10 w-0.5 bg-border border-l-2 border-dashed hidden md:block" aria-hidden="true"></div>
                     
                     <div className="space-y-12">
                         {steps.map((step, index) => (
-                            <div key={step.title} className="relative flex items-center md:items-start md:space-x-8 flex-col md:flex-row">
-                                <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full bg-primary shadow-lg mb-4 md:mb-0">
-                                    <step.icon className="h-10 w-10 text-primary-foreground" />
+                             <div key={step.title} className="flex flex-col md:flex-row items-center md:items-start text-center md:text-left gap-6">
+                                <div className="md:w-1/2 flex justify-center" style={{ order: index % 2 === 1 ? 2 : 1 }}>
+                                    <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-full bg-primary shadow-lg mb-4 md:mb-0">
+                                        <step.icon className="h-10 w-10 text-primary-foreground" />
+                                    </div>
                                 </div>
-                                <Card className="w-full">
-                                    <CardHeader>
-                                        <CardTitle className="text-2xl">{step.title}</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <p className="text-muted-foreground">{step.description}</p>
-                                    </CardContent>
-                                </Card>
+                                <div className="md:w-1/2" style={{ order: index % 2 === 1 ? 1 : 2 }}>
+                                    <Card className="w-full">
+                                        <CardHeader>
+                                            <CardTitle className="text-2xl">{step.title}</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <p className="text-muted-foreground">{step.description}</p>
+                                        </CardContent>
+                                    </Card>
+                                </div>
                             </div>
                         ))}
                     </div>

@@ -106,7 +106,7 @@ export default function PaymentClient({
               <Label>Send exactly</Label>
               <div className="flex items-center gap-2 mt-1">
                 <p className="text-2xl font-bold font-mono tracking-tight">{formatCryptoAmount(cryptoAmount)} {selectedCrypto}</p>
-                <Button variant="ghost" size="icon" onClick={() => copyToClipboard(formatCryptoAmount(cryptoAmount))}><Copy className="w-4 h-4"/></Button>
+                <Button variant="ghost" size="icon" onClick={() => copyToClipboard(String(cryptoAmount))}><Copy className="w-4 h-4"/></Button>
               </div>
               <p className="text-sm text-muted-foreground">{formatUsdAmount(property.priceUSD)}</p>
             </div>
